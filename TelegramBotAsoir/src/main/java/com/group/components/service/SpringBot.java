@@ -46,7 +46,7 @@ public class SpringBot extends TelegramLongPollingBot {
 
     private void getTableTime(Update update, String day, String par, Map<String, List<String>> subjectsToLower)  {
         int counter = 0;
-        String [] info = par.split("\\s+");
+        String [] info = par.split("\\[s,]+");
         for(Map.Entry<String, List<String>> item :  subjectsToLower.entrySet()){
             getPars(update, day, counter, info, item);
             counter = 0;
@@ -58,10 +58,14 @@ public class SpringBot extends TelegramLongPollingBot {
         for (String str: item.getValue()) {
             ++counter;
             try {
-                if(day.contains(item.getKey()) && counter == Integer.parseInt(info[0])) {
+                if(day.contains(item.getKey()) && counter == Integer.parseInt(info[0]) && !str.equals(" ")) {
                     execute(new SendMessage().setChatId(update.getMessage().getChatId())
                             .setText("Сейчас будет : " + str + " " + Pars.getPar(--counter) +  " " + "пара"));
                     break;
+                }
+                else {
+                    execute(new SendMessage().setChatId(update.getMessage().getChatId())
+                            .setText("Сейчас " + Pars.getPar(--counter) + "пара не будет : "));
                 }
 
             } catch (TelegramApiException e) {
@@ -71,17 +75,17 @@ public class SpringBot extends TelegramLongPollingBot {
     }
 
     private void setMapOfSubjects() {
-        subjectsToLowerForFirstSubroup.put("понедельник", Arrays.asList("МО, 416 ауд. корпус 2"));
-        subjectsToLowerForFirstSubroup.put("вторник", Arrays.asList("ОАУ 406 ауд. корпус 7", "МО ауд. 229 корпус 1"));
+        subjectsToLowerForFirstSubroup.put("понедельник", Arrays.asList(" ", " ", "МО, 416 ауд. корпус 2", " ", " "));
+        subjectsToLowerForFirstSubroup.put("вторник", Arrays.asList(" ","ОАУ 406 ауд. корпус 7", "МО ауд. 229 корпус 1"));
         subjectsToLowerForFirstSubroup.put("среда", Arrays.asList("СВЧВС 519 ауд. корпус 2", "СКТ 231 ауд. корупс 1", "СВЧВС 301 ауд. корпус 2", "СТК 412 ауд. корпус 2"));
         subjectsToLowerForFirstSubroup.put("четверг", Arrays.asList("ОАУ 404 ауд. корпус 2", "СТК ауд. 406 корпус 2","СА 409 ауд. корпус "));
-        subjectsToLowerForFirstSubroup.put("пятница", Arrays.asList("СТК 231 ауд. корпус 1", "МО 111 ауд. корпус 2", "Культурология 301 ауд. корпус 1"));
+        subjectsToLowerForFirstSubroup.put("пятница", Arrays.asList(" ", "МО 111 ауд. корпус 2", "Культурология 301 ауд. корпус 1"));
 
-        subjectsToLowerForSecondSubroup.put("понедельник", Arrays.asList("ООП, 111 ауд. корпус 2", "ООП 517 ауд.корпус 2", "СА 233 ауд, корпус 1", "СВЧВС 519 ауд. корпус 2"));
-        subjectsToLowerForSecondSubroup.put("вторник", Arrays.asList("ОАУ 406 ауд. корпус 7"));
+        subjectsToLowerForSecondSubroup.put("понедельник", Arrays.asList(" ","ООП, 111 ауд. корпус 2", "ООП 517 ауд.корпус 2", "СА 233 ауд, корпус 1", "СВЧВС 519 ауд. корпус 2"));
+        subjectsToLowerForSecondSubroup.put("вторник", Arrays.asList(" ","ОАУ 406 ауд. корпус 7", " "));
         subjectsToLowerForSecondSubroup.put("среда", Arrays.asList("СА 223 ауд. корпус 1", "ОАУ 207 ауд. корупс 2", "СВЧВС 301 ауд. корпус 2", "СТК 412 ауд. корпус 2"));
-        subjectsToLowerForSecondSubroup.put("четверг", Arrays.asList("ООП 449 ауд. корпус 1", "СА 409 ауд. корпус "));
-        subjectsToLowerForSecondSubroup.put("пятница", Arrays.asList("МО 111 ауд. корпус 2", "Культурология 301 ауд. корпус 1"));
+        subjectsToLowerForSecondSubroup.put("четверг", Arrays.asList("ООП 449 ауд. корпус 1", " ", "СА 409 ауд. корпус "));
+        subjectsToLowerForSecondSubroup.put("пятница", Arrays.asList("СТК 231 ауд. корпус 1", "МО 111 ауд. корпус 2", "Культурология 301 ауд. корпус 1"));
     }
 
     private String getUserName(Message msg) {
