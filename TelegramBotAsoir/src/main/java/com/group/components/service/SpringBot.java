@@ -65,7 +65,8 @@ public class SpringBot extends TelegramLongPollingBot {
                 }
                 else {
                     execute(new SendMessage().setChatId(update.getMessage().getChatId())
-                            .setText("Сейчас " + Pars.getPar(--counter) + "пара не будет : "));
+                            .setText("Сейчас пара не будет "));
+                    break;
                 }
 
             } catch (TelegramApiException e) {
@@ -75,7 +76,7 @@ public class SpringBot extends TelegramLongPollingBot {
     }
 
     private void setMapOfSubjects() {
-        subjectsToLowerForFirstSubroup.put("понедельник", Arrays.asList(" ", " ", "МО, 416 ауд. корпус 2", " ", " "));
+        subjectsToLowerForFirstSubroup.put("понедельник", Arrays.asList(" ", "ООП, 111 ауд. корпус 2", "МО, 416 ауд. корпус 2", " ", " "));
         subjectsToLowerForFirstSubroup.put("вторник", Arrays.asList(" ","ОАУ 406 ауд. корпус 7", "МО ауд. 229 корпус 1"));
         subjectsToLowerForFirstSubroup.put("среда", Arrays.asList("СВЧВС 519 ауд. корпус 2", "СКТ 231 ауд. корупс 1", "СВЧВС 301 ауд. корпус 2", "СТК 412 ауд. корпус 2"));
         subjectsToLowerForFirstSubroup.put("четверг", Arrays.asList("ОАУ 404 ауд. корпус 2", "СТК ауд. 406 корпус 2","СА 409 ауд. корпус "));
