@@ -9,6 +9,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.TextStyle;
 import java.util.*;
 
 @Component
@@ -34,58 +37,68 @@ public class SpringBot extends TelegramLongPollingBot {
         setMapOfSubjects();
         Message msg = update.getMessage();
         Long chatId = msg.getChatId();
-        String [] parse2 = msg.getText().split(",");
+        String [] parseSplit = msg.getText().split(",");
         System.out.println(msg);
-        if(parse2[0].contains("первая подгруппа") || parse2[0].contains("1 подгруппа")) {
-            getTableTime(update, parse2[1].trim(), parse2[2].trim(), subjectsToLowerForFirstSubroup);
+        if(parseSplit[0].toLowerCase().contains("первая подгруппа") || parseSplit[0].toLowerCase().contains("1 подгруппа")) {
+            getTableTime(update, getDayOfWeek(), parseSplit[1].trim(), subjectsToLowerForFirstSubroup);
         }
-        else if(parse2[0].contains("вторая подгруппа") || parse2[0].contains("2 подгруппа")) {
-            getTableTime(update, parse2[1].trim(), parse2[2].trim(), subjectsToLowerForSecondSubroup);
+        else if(parseSplit[0].toLowerCase().contains("вторая подгруппа") || parseSplit[0].toLowerCase().contains("2 подгруппа")) {
+            getTableTime(update, getDayOfWeek(), parseSplit[1].trim(), subjectsToLowerForSecondSubroup);
         }
     }
 
     private void getTableTime(Update update, String day, String par, Map<String, List<String>> subjectsToLower)  {
-        int counter = 0;
-        String [] info = par.split("\\[s,]+");
+        String [] info = par.split("[\\s,]+");
         for(Map.Entry<String, List<String>> item :  subjectsToLower.entrySet()){
-            getPars(update, day, counter, info, item);
-            counter = 0;
-
+            getPars(update, day, info[0], item);
         }
     }
 
-    private void getPars(Update update, String day, int counter, String[] info, Map.Entry<String, List<String>> item) {
+    private void getPars(Update update, String day, String info, Map.Entry<String, List<String>> item) {
+        int counter = 0;
         for (String str: item.getValue()) {
             ++counter;
             try {
-                if(day.contains(item.getKey()) && counter == Integer.parseInt(info[0]) && !str.equals(" ")) {
+                if (day.contains(item.getKey()) && counter == Integer.parseInt(info) && !str.contains("-")) {
                     execute(new SendMessage().setChatId(update.getMessage().getChatId())
                             .setText("Сейчас будет : " + str + " " + Pars.getPar(--counter) +  " " + "пара"));
                     break;
                 }
-                else {
+                else if(counter == Integer.parseInt(info) && (day.contains("субббота") || day.contains("воскресенье"))){
                     execute(new SendMessage().setChatId(update.getMessage().getChatId())
-                            .setText("Сейчас пара не будет "));
+                            .setText("Сегодня выходной, пар нет, чильте "));
                     break;
                 }
-
+                else if (counter == Integer.parseInt(info) & str.contains("-")){
+                    execute(new SendMessage().setChatId(update.getMessage().getChatId())
+                            .setText("Сейчас пары не будет "));
+                    break;
+                }
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
         }
     }
 
+    private String getDayOfWeek(){
+        LocalDate date = LocalDate.now();
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+        Locale localeRu = new Locale("ru", "RU");
+        return dayOfWeek.getDisplayName(TextStyle.FULL,localeRu);
+
+    }
+
     private void setMapOfSubjects() {
-        subjectsToLowerForFirstSubroup.put("понедельник", Arrays.asList(" ", "ООП, 111 ауд. корпус 2", "МО, 416 ауд. корпус 2", " ", " "));
-        subjectsToLowerForFirstSubroup.put("вторник", Arrays.asList(" ","ОАУ 406 ауд. корпус 7", "МО ауд. 229 корпус 1"));
+        subjectsToLowerForFirstSubroup.put("понедельник", Arrays.asList("-", "ООП, 111 ауд. корпус 2", "МО, 416 ауд. корпус 2", "-", "-"));
+        subjectsToLowerForFirstSubroup.put("вторник", Arrays.asList("-","ОАУ 406 ауд. корпус 7", "МО ауд. 229 корпус 1"));
         subjectsToLowerForFirstSubroup.put("среда", Arrays.asList("СВЧВС 519 ауд. корпус 2", "СКТ 231 ауд. корупс 1", "СВЧВС 301 ауд. корпус 2", "СТК 412 ауд. корпус 2"));
         subjectsToLowerForFirstSubroup.put("четверг", Arrays.asList("ОАУ 404 ауд. корпус 2", "СТК ауд. 406 корпус 2","СА 409 ауд. корпус "));
-        subjectsToLowerForFirstSubroup.put("пятница", Arrays.asList(" ", "МО 111 ауд. корпус 2", "Культурология 301 ауд. корпус 1"));
+        subjectsToLowerForFirstSubroup.put("пятница", Arrays.asList("-", "МО 111 ауд. корпус 2", "Культурология 301 ауд. корпус 1"));
 
-        subjectsToLowerForSecondSubroup.put("понедельник", Arrays.asList(" ","ООП, 111 ауд. корпус 2", "ООП 517 ауд.корпус 2", "СА 233 ауд, корпус 1", "СВЧВС 519 ауд. корпус 2"));
-        subjectsToLowerForSecondSubroup.put("вторник", Arrays.asList(" ","ОАУ 406 ауд. корпус 7", " "));
+        subjectsToLowerForSecondSubroup.put("понедельник", Arrays.asList("-","ООП, 111 ауд. корпус 2", "ООП 517 ауд.корпус 2", "СА 233 ауд, корпус 1", "СВЧВС 519 ауд. корпус 2"));
+        subjectsToLowerForSecondSubroup.put("вторник", Arrays.asList("-","ОАУ 406 ауд. корпус 7", "-"));
         subjectsToLowerForSecondSubroup.put("среда", Arrays.asList("СА 223 ауд. корпус 1", "ОАУ 207 ауд. корупс 2", "СВЧВС 301 ауд. корпус 2", "СТК 412 ауд. корпус 2"));
-        subjectsToLowerForSecondSubroup.put("четверг", Arrays.asList("ООП 449 ауд. корпус 1", " ", "СА 409 ауд. корпус "));
+        subjectsToLowerForSecondSubroup.put("четверг", Arrays.asList("ООП 449 ауд. корпус 1", "-", "СА 409 ауд. корпус"));
         subjectsToLowerForSecondSubroup.put("пятница", Arrays.asList("СТК 231 ауд. корпус 1", "МО 111 ауд. корпус 2", "Культурология 301 ауд. корпус 1"));
     }
 
