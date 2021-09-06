@@ -68,11 +68,13 @@ public class SpringBot extends TelegramLongPollingBot {
     private void getTableTime(Update update, String day, String par, Map<String, List<String>> subjectsToLower) {
         String[] info = par.split(spaceAndComma);
         for (Map.Entry<String, List<String>> item : subjectsToLower.entrySet()) {
-            getPars(update, day, info[0], item);
+            if(getPars(update, day, info[0], item)){
+                break;
+            }
         }
     }
 
-    private void getPars(Update update, String day, String info, Map.Entry<String, List<String>> item) {
+    private boolean getPars(Update update, String day, String info, Map.Entry<String, List<String>> item) {
         int counter = 0;
         for (String str : item.getValue()) {
             ++counter;
@@ -80,20 +82,22 @@ public class SpringBot extends TelegramLongPollingBot {
                 if (day.contains(item.getKey()) && counter == Integer.parseInt(info) && !str.contains("-")) {
                     execute(new SendMessage().setChatId(update.getMessage().getChatId())
                             .setText("Сейчас будет : " + str + " " + Pars.getPar(--counter) + " " + "пара"));
-                    break;
+                    return true;
                 } else if (counter == Integer.parseInt(info) && (day.contains("субббота") || day.contains("воскресенье"))) {
                     execute(new SendMessage().setChatId(update.getMessage().getChatId())
                             .setText("Сегодня выходной, пар нет, чильте "));
-                    break;
+                    return true;
                 } else if (counter == Integer.parseInt(info) & str.contains("-")) {
                     execute(new SendMessage().setChatId(update.getMessage().getChatId())
                             .setText("Сейчас пары не будет "));
-                    break;
+                    return true;
                 }
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
         }
+        return false;
+
     }
 
     private String getDayOfWeek() {
