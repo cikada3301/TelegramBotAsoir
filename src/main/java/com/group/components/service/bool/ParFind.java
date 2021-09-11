@@ -14,8 +14,6 @@ import org.springframework.stereotype.Component;
 @Getter
 public class ParFind {
 
-    private String message;
-
     public boolean isSubgroup(String[] parseSplit, String typeOfTimeTable, String subgroup, String subgroupWithNumber, String numberSubgroup) {
         return isTimeTable(2, typeOfTimeTable, parseSplit) && (isTimeTable(0, subgroup, parseSplit)
                 || isTimeTable(0, subgroupWithNumber, parseSplit)
@@ -32,17 +30,14 @@ public class ParFind {
             for (String str : timetable.getTimetables()) {
                 ++counter;
                 if (day.contains(timetable.getDay()) && counter == Integer.parseInt(info) && !str.contains("-")) {
-                    this.message = "Сейчас будет : " + str + " " + Pars.getPar(counter - 1) + " " + "пара";
-                    break;
+                    return "Сейчас будет : " + str + " " + Pars.getPar(counter - 1) + " " + "пара";
                 } else if (day.contains(timetable.getDay()) && counter == Integer.parseInt(info) && str.contains("-")) {
-                    this.message = "Сейчас пары не будет ";
-                    break;
+                    return "Сейчас пары не будет ";
                 } else if ((day.contains("суббота") || day.contains("воскресенье"))) {
-                    this.message = "Сегодня выходной, пар нет, чильте ";
-                    break;
+                    return "Сегодня выходной, пар нет, чильте ";
                 }
             }
         }
-        return message;
+        return "Неправильный формат данных";
     }
 }
